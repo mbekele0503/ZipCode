@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="24418755-b478-4480-ad4c-4f9dfcce4ed2" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="4ed92c43-b7de-4bf6-9a29-bafc4d93688f" basePath="/ZipCodesAPI.svc/1.0/QuickGetZipCodeDetails/">
+		<http:request-connection protocol="HTTPS" host="api.zip-codes.com" port="443" />
+	</http:request-config>
+	<flow name="zipppFlow" doc:id="c7694fd3-f9bb-48a2-899d-07da7d4d1f8c" >
+		<http:listener doc:name="Listener" doc:id="499d2ef6-ae44-4b07-9007-a03deaa4fb35" config-ref="HTTP_Listener_config" path="/project1/{zip}"/>
+		<logger level="INFO" doc:name="Logger" doc:id="d777ccd2-2af2-49c3-9627-c5ff869e5860" />
+		<ee:transform doc:name="Transform Message" doc:id="46e2395f-af8a-461e-b1c4-494861c327ad" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="zipcode" ><![CDATA[%dw 2.0
+output application/json
+---
+attributes.uriParams.zip
+
+]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<http:request method="GET" doc:name="Request" doc:id="a578cca8-ca1d-4d08-b2ac-3b3d47240b7f" config-ref="HTTP_Request_configuration" path="#[vars.zipcode]">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	key : "WQCWT3H7UG8R5SPTMOEU"
+}]]]></http:query-params>
+		</http:request>
+	</flow>
+</mule>
